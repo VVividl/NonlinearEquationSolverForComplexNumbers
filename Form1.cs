@@ -1,11 +1,12 @@
-﻿using System;
+﻿using kursova.Models;
+using kursova.Services;
+using kursova.Solvers;
+using System;
+using System.IO;
 using System.Numerics;
 using System.Text;
 using System.Windows.Forms;
-using kursova.Models;
-using kursova.Solvers;
-using kursova.Services;
-using System.IO;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace kursova
 {
@@ -261,40 +262,22 @@ namespace kursova
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (!_isSolved)
-            {
-                MessageBox.Show(
-                    "Please solve the equation first.",
-                    "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Текстові файли (*.txt)|*.txt|Усі файли (*.*)|*.*";
+            saveFileDialog.Title = "Зберегти результати";
+            saveFileDialog.FileName = "Результат_обчислень";
 
-            using (SaveFileDialog sfd = new SaveFileDialog()
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                Filter = "Text Documents|*.txt",
-                Title = "Save result"
-            })
-            {
-                if (sfd.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    string sign = _lastResult.Imaginary < 0 ? "-" : "+";
-                    string rootStr =
-                        $"{_lastResult.Real:F4} {sign} {Math.Abs(_lastResult.Imaginary):F4}i";
-
-                    string content =
-                        $"Equation (coefficients): {txtCoefficients.Text}\n" +
-                        $"Formula: {lblFormula.Text}\n" +
-                        $"Method: {cmbMethod.SelectedItem}\n" +
-                        $"Initial approximation: {txtInitialReal.Text} + {txtInitialImag.Text}i\n" +
-                        $"Accuracy (epsilon): {txtEpsilon.Text}\n" +
-                        $"Max iterations: {txtMaxIterations.Text}\n\n" +
-                        $"Found root: {rootStr}\n\n" +
-                        $"{_lastReport}";
-
-                    FileService.SaveResult(sfd.FileName, content);
-                    MessageBox.Show(
-                        "Result saved successfully!",
-                        "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string reportContent = txtResults.Text;
+                    System.IO.File.WriteAllText(saveFileDialog.FileName, reportContent);
+                    MessageBox.Show("Успішно збережено!", "Успіх", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Помилка при збереженні файлів: {ex.Message}", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
