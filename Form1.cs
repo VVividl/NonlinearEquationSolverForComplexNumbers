@@ -151,7 +151,6 @@ namespace kursova
 
         private void btnSolve_Click(object sender, EventArgs e)
         {
-            //Валідація epsilon
             string epsilonText = txtEpsilon.Text.Replace(',', '.');
             if (!double.TryParse(epsilonText,
                 System.Globalization.NumberStyles.Float,
@@ -165,7 +164,6 @@ namespace kursova
                 return;
             }
 
-            //Валідація maxIterations
             if (!int.TryParse(txtMaxIterations.Text, out int maxIterations) || maxIterations <= 0)
             {
                 MessageBox.Show(
@@ -174,7 +172,6 @@ namespace kursova
                 return;
             }
 
-            //Валідація початкового наближення
             string initRealText = txtInitialReal.Text.Replace(',', '.');
             string initImagText = txtInitialImag.Text.Replace(',', '.');
             if (!double.TryParse(initRealText,
@@ -191,13 +188,21 @@ namespace kursova
                 return;
             }
 
-            //Парсинг коефіцієнтів
             string[] coeffStrings = txtCoefficients.Text
                 .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             if (coeffStrings.Length == 1)
                 coeffStrings = txtCoefficients.Text
                     .Split(new[] { ' ', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (coeffStrings.Length > 16)
+            {
+                MessageBox.Show(
+                    "Error: Polynomial degree is too high.\n" +
+                    "Enter a maximum of 16 coefficients for stability.",
+                    "System Limit", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
             Complex[] coefficients = new Complex[coeffStrings.Length];
             for (int i = 0; i < coeffStrings.Length; i++)
@@ -263,21 +268,27 @@ namespace kursova
         private void btnSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "Текстові файли (*.txt)|*.txt|Усі файли (*.*)|*.*";
-            saveFileDialog.Title = "Зберегти результати";
-            saveFileDialog.FileName = "Результат_обчислень";
+            saveFileDialog.Filter = "text files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveFileDialog.Title = "Save results";
+            saveFileDialog.FileName = "Result";
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    string reportContent = txtResults.Text;
+                    string reportContent = txtResult.Text;
                     System.IO.File.WriteAllText(saveFileDialog.FileName, reportContent);
-                    MessageBox.Show("Успішно збережено!", "Успіх", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    MessageBox.Show(
+                        "Saved!",
+                        "Success",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Помилка при збереженні файлів: {ex.Message}", "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Error saving the file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
