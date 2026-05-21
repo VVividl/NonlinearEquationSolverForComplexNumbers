@@ -2,11 +2,10 @@
 using kursova.Services;
 using kursova.Solvers;
 using System;
-using System.IO;
+using System.Drawing;
 using System.Numerics;
 using System.Text;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
 
 namespace kursova
 {
@@ -34,8 +33,6 @@ namespace kursova
             txtCoefficients.TextChanged += txtCoefficients_TextChanged;
             this.FormClosing += Form1_FormClosing;
         }
-
-        //Формула
 
         private void txtCoefficients_TextChanged(object sender, EventArgs e)
         {
@@ -146,8 +143,6 @@ namespace kursova
                 result += superscripts[c - '0'];
             return result;
         }
-
-        //Розв'язати 
 
         private void btnSolve_Click(object sender, EventArgs e)
         {
@@ -263,8 +258,6 @@ namespace kursova
             PlotGraph(_currentEquation);
         }
 
-        //Зберегти 
-
         private void btnSave_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -278,6 +271,13 @@ namespace kursova
                 {
                     string reportContent = txtResult.Text;
                     System.IO.File.WriteAllText(saveFileDialog.FileName, reportContent);
+
+                    string imagePath = saveFileDialog.FileName.Replace(".txt", "_graph.png");
+
+                    if (chartEquation != null)
+                    {
+                        chartEquation.SaveImage(imagePath, System.Windows.Forms.DataVisualization.Charting.ChartImageFormat.Png);
+                    }
 
                     MessageBox.Show(
                         "Saved!",
@@ -293,8 +293,6 @@ namespace kursova
             }
         }
 
-        //Очистити 
-
         private void btnClear_Click(object sender, EventArgs e)
         {
             txtCoefficients.Clear();
@@ -308,8 +306,6 @@ namespace kursova
             _isSolved = false;
             chartEquation.Series.Clear();
         }
-
-        // Графік
 
         private void PlotGraph(Equation eq)
         {
@@ -355,8 +351,6 @@ namespace kursova
             chartEquation.Series.Add(series);
             chartEquation.Series.Add(zeroLine);
         }
-
-        //Закриття форми
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
